@@ -22,14 +22,23 @@ function connection_closed() {
 }
 
 handle_input((line) => {
-
-  line == "Hello?"
-    ? render([closedMessage, `[ SYSTEM ] ${closedMessage}`])
-    : send_message(conn, line);
+	if (line == "Hello?") {
+		render([closedMessage, `[ SYSTEM ] ${closedMessage}`])
+	} else if (line.includes('open')) {
+		render([message])
+	} else {
+		send_message(conn, line);
+	}
 });
 
 handle_message(conn, (message) => {
-  console.log("Message received:", message);
+	if (message == "Hello?") {
+		render([closedMessage, `[ SYSTEM ] ${closedMessage}`])
+	} else if (message.includes('open')) {
+		render([message])
+	} else {
+		send_message(conn, message);
+	}
 });
 
 conn.on("ready", connection_ready);
