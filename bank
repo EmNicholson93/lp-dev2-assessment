@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const net = require("net");
-const { handle_message, send_message, red, green, open_or_closed } = require("./lib/helpers");
+const { handle_message, send_message, red, green, open_or_closed, next_customer } = require("./lib/helpers");
 const SOCKET = "./bank.sock";
 
 
@@ -17,48 +17,28 @@ const server = net.createServer((conn) => {
 
 
   handle_message(conn, (message) => {
+		
     // customer connected?
-
     if (message === "customer") {
       connCustomers.push(conn);
 
-
       // !Tellers connected
-
       if (!connTellers.length) {
         send_message(conn, `The Bank is ${red("closed")}.`);
       }
     }
 
-
     // Tellers connected
-
     else if (message === "teller") {
       connTellers.push(conn);
       send_message(conn, `# customers:${connCustomers.length}`);
+			open_or_closed(connCustomers);
 
-				open_or_closed(connCustomers);
-
-    } else if (message.includes("next")) {
-			connCustomers.map((conn, i) => {
-				if(i === 0) {
-					beingServed.push(conn)
-				// 	connCustomers.shift()
-
-					send_message(conn, `The Bank is ${green("open")}.\n Teller #1 is now serving you!\n\n [ TELLER ] What can I help you with?\n`
-					)
-				} else if (i == 1) {
-					send_message(conn, `The Bank is ${green("open")}.\nYou are the next customer to be served.\n`)
-				} else {
-					send_message(conn, `The Bank is ${green("open")}.\nThere is ${i - 1} customer in line ahead of you.\n`);
-				}
-				// } else if (beingServed.length === 1) {
-				// 	console.log('hello')
-				// 	send_message(conn, 'hello')
-				// 	open_or_closed(conn, i)
-
-				// }
-			})
+    } 
+		
+		// teller requests next customer
+		else if (message.includes("next")) {
+			next_customer(connCustomers, beingServed)
 		} 
 
 
