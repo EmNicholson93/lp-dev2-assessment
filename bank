@@ -1,74 +1,97 @@
 #!/usr/bin/env node
 
-const net = require('net')
-const { handle_message, send_message, red } = require('./lib/helpers')
-const SOCKET = "./bank.sock"
+const net = require("net");
+const { handle_message, send_message, red, green, open_or_closed } = require("./lib/helpers");
+const SOCKET = "./bank.sock";
 
-let connectedTellers = []
-let connectedCustomers = []
+
+let connTellers = [];
+let connCustomers = [];
+
 
 // possible concept: customers and tellers might work in a single pool?
 // will remove within next 2 commits if no movement
 // let connectedClients = []
 
+
 // TCP Server using a Unix socket
 
-const server = net.createServer(conn => {
-	console.log('client connected')
+const server = net.createServer((conn) => {
+  console.log("client connected");
 
 
-	handle_message(conn, message => {
+  handle_message(conn, (message) => {
+    // customer connected?
 
-		// customer connected?
-		if (message === 'customer') {
-			console.log('Customer connected')
-			connectedCustomers.push(conn)
-
-			// !Tellers connected
-			if (!connectedTellers.length) {
-				send_message(conn, `The Bank is ${red('closed')}.`)
-			}
-		}
-
-		// Tellers connected
-		else if (message === 'teller') {
-			console.log('Teller connected')
-			connectedTellers.push(conn)
-			send_message(conn, `# customers:${connectedCustomers.length}`)
-		}
-
-		// bank response still unchanged
-		// send_message(conn, `I, the Bank, received: ${message}`)
-	})
+    if (message === "customer") {
+      connCustomers.push(conn);
 
 
-	conn.on('close', () => {
-		console.log('client disconnected')
-	})
-})
+      // !Tellers connected
+
+      if (!connTellers.length) {
+        send_message(conn, `The Bank is ${red("closed")}.`);
+      }
+    }
 
 
+    // Tellers connected
+
+    else if (message === "teller") {
+      connTellers.push(conn);
+      send_message(conn, `# customers:${connCustomers.length}`);
 
 
+      connCustomers.map((c, i) => {
+        // connected teller == open
+
+				open_or_closed(connTellers);
+
+        // Next customer in line
+
+        if (i === 0) {
+          send_message(c, "You are the next customer to be served.");
+        }
+        // Every other customer
+
+        else {
+          send_message(
+            c,
+            `There is ${
+              connCustomers.length - 1
+            } customers in line ahead of you`
+          );
+        }
+      });
+    }
 
 
+    // bank response still unchanged
+    // send_message(conn, `I, the Bank, received: ${message}`)
+  });
 
 
+  conn.on("close", () => {
+    console.log("client disconnected");
+  });
+});
 
 
-server.listen(SOCKET)
-console.log(`Bank server is listening...`)
+server.listen(SOCKET);
+console.log(`Bank server is listening...`);
 
 
-process.on('exit', shutdown)
-process.on('SIGINT', shutdown)
-process.on('SIGTERM', shutdown)
+process.on("exit", shutdown);
+process.on("SIGINT", shutdown);
+process.on("SIGTERM", shutdown);
 
-process.on('uncaughtException',function(err){
-	console.log('Uncaught ERROR:', err)
-})
+
+process.on("uncaughtException", function (err) {
+  console.log("Uncaught ERROR:", err);
+});
+
 
 function shutdown() {
-	server.close()
-	process.exit()
+  server.close();
+  process.exit();
 }
