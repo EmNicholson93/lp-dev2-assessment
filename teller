@@ -1,27 +1,46 @@
 #!/usr/bin/env node
 
 const net = require('net')
-const { render, handle_input, handle_message } = require('./lib/helpers')
+const { render, handle_input, handle_message, send_message } = require('./lib/helpers')
 const conn = net.createConnection('./bank.sock')
 
 
 
 function connection_ready() {
 	render([
-		'Hello Teller'
-	])
+		'Good Morning.',
+		'You are not serving any customers.',
+	]),
+	send_message(conn, 'teller')
 }
 
 
 
 handle_input(line => {
-	console.log(`Prompt command entered:`, line)
+	if(line === "next") {
+		render([`You are serving customer #1.`,
+		`You have 1 customer wating in line.\n`,
+		
+		`[ CHAT ]`,
+		`- (you) What can I help you with?\n`,
+		
+		`[ CUSOTMER ACCOUNT ]`,
+		`Status: Active`,
+		`Balance: $100\n`])
+		send_message(conn, line);
+	}
 })
 
 
 
 handle_message(conn, message => {
-	console.log('Message received:', message)
+	if(message.includes('# customers')) {
+		render([
+			'Good Morning.',
+			'You are not serving any customers.',
+			`You have ${message.split(':')[1]} customers waiting in line.\n`
+		])
+	}
 })
 
 

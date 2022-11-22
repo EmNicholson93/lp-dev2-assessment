@@ -1,53 +1,59 @@
 #!/usr/bin/env node
 
-const net = require('net')
-const { render, handle_input, handle_message, send_message } = require('./lib/helpers')
-const conn = net.createConnection('./bank.sock')
+const net = require("net");
+const {
+  render,
+  handle_input,
+  handle_message,
+  send_message,
+  red,
+} = require("./lib/helpers");
+const conn = net.createConnection("./bank.sock");
 
-
+const closedMessage = `The Bank is ${red("closed")}.\n`;
+let beingServed = false;
 
 function connection_ready() {
-	render([
-		'Hello Customer'
-	])
+  render([closedMessage]);
+	send_message(conn, 'customer')
 }
-
-
 
 function connection_closed() {
-	console.log('connection closed')
+  console.log("connection closed");
 }
 
+handle_input((line) => {
+	 if (line == "Hello?") {
+	 	render([closedMessage, `[ SYSTEM ] ${closedMessage}`])
+	 } else if  (!beingServed) {
+		console.log(`[ SYSTEM ] You are not currently being served.`)
+	} else {
+		send_message(conn, line)
+	}
 
+});
 
-handle_input(line => {
-	console.log(`Prompt command entered:`, line)
-	send_message(conn, line)
-})
+handle_message(conn, (message) => {
+	if (message == "Hello?") {
+		render([closedMessage, `[ SYSTEM ] ${closedMessage}`])
+	} else if (message.includes('Teller #')) {
+		beingServed = true;
+		render([message])
+	} else if (message.includes('open')) {
+		render([message])
+	} else {
+		send_message(conn, message);
+	}
+});
 
+conn.on("ready", connection_ready);
 
+conn.on("close", () => {
+  connection_closed();
+  process.exit(1);
+});
 
-handle_message(conn, message => {
-	console.log('Message received:', message)
-})
-
-
-
-
-
-
-
-
-
-
-conn.on('ready', connection_ready)
-
-conn.on('close', () => {
-	connection_closed()
-	process.exit(1)
-})
-
-conn.on('error', () => {
-	console.log('No connection')
-	process.exit(1)
-})
+conn.on("error", () => {
+  console.log("No connection");
+  process.exit(1);
+});
