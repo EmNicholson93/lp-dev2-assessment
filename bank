@@ -45,7 +45,7 @@ const server = net.createServer((conn) => {
       connCustomers.map((c, i) => {
         // connected teller == open
 
-				open_or_closed(connTellers);
+				open_or_closed(connTellers, c);
 
         // Next customer in line
 
