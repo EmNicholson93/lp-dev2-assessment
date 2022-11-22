@@ -23,15 +23,12 @@ function connection_closed() {
 }
 
 handle_input((line) => {
-	// if (line == "Hello?") {
-	// 	render([closedMessage, `[ SYSTEM ] ${closedMessage}`])
-	// } else if (line.includes('open')) {
-	// 	render([message])
-	// } else {
-	// 	send_message(conn, line);
-	// }
-	if (!beingServed) {
+	 if (line == "Hello?") {
+	 	render([closedMessage, `[ SYSTEM ] ${closedMessage}`])
+	 } else if  (!beingServed) {
 		console.log(`[ SYSTEM ] You are not currently being served.`)
+	} else {
+		send_message(conn, line)
 	}
 
 });
@@ -39,6 +36,9 @@ handle_input((line) => {
 handle_message(conn, (message) => {
 	if (message == "Hello?") {
 		render([closedMessage, `[ SYSTEM ] ${closedMessage}`])
+	} else if (message.includes('Teller #')) {
+		beingServed = true;
+		render([message])
 	} else if (message.includes('open')) {
 		render([message])
 	} else {
