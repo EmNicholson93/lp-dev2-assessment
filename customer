@@ -14,6 +14,7 @@ const closedMessage = `The Bank is ${red("closed")}.\n`;
 
 function connection_ready() {
   render([closedMessage]);
+	send_message(conn, 'customer')
 }
 
 function connection_closed() {
