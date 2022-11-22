@@ -37,24 +37,27 @@ const server = net.createServer((conn) => {
       connTellers.push(conn);
       send_message(conn, `# customers:${connCustomers.length}`);
 
+				open_or_closed(connCustomers);
 
-      connCustomers.map((conn, i) => {
-
-				open_or_closed(conn, i);
-      });
     } else if (message.includes("next")) {
 			connCustomers.map((conn, i) => {
 				if(i === 0) {
 					beingServed.push(conn)
-					console.log(connCustomers.length)
-					connCustomers.shift()
-					console.log(beingServed.length, connCustomers.length)
+				// 	connCustomers.shift()
+
 					send_message(conn, `The Bank is ${green("open")}.\n Teller #1 is now serving you!\n\n [ TELLER ] What can I help you with?\n`
 					)
-				} else if (i >= 1) {
-					open_or_closed(conn, i - 1)
-
+				} else if (i == 1) {
+					send_message(conn, `The Bank is ${green("open")}.\nYou are the next customer to be served.\n`)
+				} else {
+					send_message(conn, `The Bank is ${green("open")}.\nThere is ${i - 1} customer in line ahead of you.\n`);
 				}
+				// } else if (beingServed.length === 1) {
+				// 	console.log('hello')
+				// 	send_message(conn, 'hello')
+				// 	open_or_closed(conn, i)
+
+				// }
 			})
 		} 
 
