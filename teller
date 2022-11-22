@@ -18,6 +18,17 @@ function connection_ready() {
 
 handle_input(line => {
 	console.log(`Prompt command entered:`, line)
+	if(line === "next") {
+		render([`You are serving customer #1.`,
+		`You have 1 customer wating in line.\n`,
+		
+		`[ CHAT ]`,
+		`- (you) What can I help you with?\n`,
+		
+		`[ CUSOTMER ACCOUNT ]`,
+		`Status: Active`,
+		`Balance: $100\n`])
+	}
 })
 
 
