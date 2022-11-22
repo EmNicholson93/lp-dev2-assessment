@@ -42,21 +42,21 @@ const server = net.createServer((conn) => {
       send_message(conn, `# customers:${connCustomers.length}`);
 
 
-      connCustomers.map((c, i) => {
+      connCustomers.map((conn, i) => {
         // connected teller == open
 
-				open_or_closed(connTellers, c);
+				open_or_closed(conn, i);
 
         // Next customer in line
 
         if (i === 0) {
-          send_message(c, "You are the next customer to be served.");
+          send_message(conn, "You are the next customer to be served.");
         }
         // Every other customer
 
         else {
           send_message(
-            c,
+            conn,
             `There is ${
               connCustomers.length - 1
             } customers in line ahead of you`
