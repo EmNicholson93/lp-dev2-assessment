@@ -11,6 +11,7 @@ const {
 const conn = net.createConnection("./bank.sock");
 
 const closedMessage = `The Bank is ${red("closed")}.\n`;
+let beingServed = false;
 
 function connection_ready() {
   render([closedMessage]);
@@ -22,13 +23,17 @@ function connection_closed() {
 }
 
 handle_input((line) => {
-	if (line == "Hello?") {
-		render([closedMessage, `[ SYSTEM ] ${closedMessage}`])
-	} else if (line.includes('open')) {
-		render([message])
-	} else {
-		send_message(conn, line);
+	// if (line == "Hello?") {
+	// 	render([closedMessage, `[ SYSTEM ] ${closedMessage}`])
+	// } else if (line.includes('open')) {
+	// 	render([message])
+	// } else {
+	// 	send_message(conn, line);
+	// }
+	if (!beingServed) {
+		console.log(`[ SYSTEM ] You are not currently being served.`)
 	}
+
 });
 
 handle_message(conn, (message) => {
