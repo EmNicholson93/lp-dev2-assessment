@@ -28,6 +28,7 @@ handle_input(line => {
 		`[ CUSOTMER ACCOUNT ]`,
 		`Status: Active`,
 		`Balance: $100\n`])
+		send_message(conn, line);
 	}
 })
 
