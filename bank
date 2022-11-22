@@ -8,7 +8,7 @@ let connectedTellers = []
 let connectedCustomers = []
 
 // possible concept: customers and tellers might work in a single pool?
-// will remove within next 3 commits if no movement
+// will remove within next 2 commits if no movement
 // let connectedClients = []
 
 // TCP Server using a Unix socket
@@ -23,7 +23,7 @@ const server = net.createServer(conn => {
 		if (message === 'customer') {
 			console.log('Customer connected')
 			connectedCustomers.push(conn)
-			console.log(connectedCustomers.length)
+
 			// !Tellers connected
 			if (!connectedTellers.length) {
 				send_message(conn, `The Bank is ${red('closed')}.`)
@@ -34,10 +34,11 @@ const server = net.createServer(conn => {
 		else if (message === 'teller') {
 			console.log('Teller connected')
 			connectedTellers.push(conn)
+			send_message(conn, `# customers:${connectedCustomers.length}`)
 		}
 
 		// bank response still unchanged
-		send_message(conn, `I, the Bank, received: ${message}`)
+		// send_message(conn, `I, the Bank, received: ${message}`)
 	})
 
 
