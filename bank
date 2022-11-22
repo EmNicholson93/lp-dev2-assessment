@@ -9,11 +9,6 @@ let connTellers = [];
 let connCustomers = [];
 
 
-// possible concept: customers and tellers might work in a single pool?
-// will remove within next 2 commits if no movement
-// let connectedClients = []
-
-
 // TCP Server using a Unix socket
 
 const server = net.createServer((conn) => {
